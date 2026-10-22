@@ -1,38 +1,22 @@
-"""The stage at the top of every page: a side-scrolling, pixel-art level. One coin per paper,
-a block every ten, pipes and pits to jump, a flag and a castle at the end. The runner collects
-a coin for every paper read. Geometry is computed here; assets/map.js moves the runner."""
+"""The stage at the top of every page: a side-scrolling level drawn like a pen sketch on the
+paper (nothing is filled, so the washi shows through). One coin per paper, a block every ten,
+pipes and pits to jump, a flag and a castle at the end; a stick-figure runner collects a coin
+for every paper read. Geometry is computed here; assets/map.js moves the runner."""
 import html
 import json
 import math
+import random
 
 W, H = 960, 176
 G = 140            # ground line (the runner's feet)
-PX = 3             # one runner pixel in stage units
-INK = "#1c1c1c"
+INK = "#26231f"
 X0, X1 = 56, 852   # stop 0 and stop 100
 RES = 4            # points per stop in the runner's path (smooth jumps)
 
 PIPES = [(185, 32), (470, 48), (745, 32)]   # centre x, height
 PITS = [330, 610]                           # centre x (44 wide)
-
-PALETTE = {"K": INK, "W": "#f5f5f5", "D": "#4a4a4a"}
-BODY = ["...KK..KK...", "..KKKKKKKK..", ".KKKKKKKKKK.", ".KKWWWWWWKK.", ".KWWWWWWWWK.", ".KWKKWWKKWK.",
-        ".KWWWWWWWWK.", "..KWWWWWWK..", "..KDDDDDDK..", ".KDDWDDWDDK.", ".KDDDDDDDDK.", "..KDDDDDDK.."]
-LEGS_A = ["..KK....KK..", ".KWK....KWK."]
-LEGS_B = ["...KKKKKK...", "..KWK..KWK.."]
-
-COIN = ["..KK..", ".KYYK.", "KYYWYK", "KYWYYK", "KYWYYK", "KYYYYK", ".KYYK.", "..KK.."]
-COIN_COLORS = {"K": "#2b2b2b", "Y": "#c9c9c9", "W": "#ffffff"}
-CLOUD = ["...XXXX......", "..XXXXXXX.XX.", ".XXXXXXXXXXXX", "XXXXXXXXXXXXX", ".XXXXXXXXXXX."]
-
-
-def _rects(rows, colors, unit, ox=0, oy=0):
-    out = []
-    for y, row in enumerate(rows):
-        for x, ch in enumerate(row):
-            if ch != ".":
-                out.append(f'<rect x="{ox + x * unit}" y="{oy + y * unit}" width="{unit}" height="{unit}" fill="{colors[ch]}"/>')
-    return "".join(out)
+PEN = f'fill="none" stroke="{INK}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"'
+THIN = f'fill="none" stroke="{INK}" stroke-width="1.4" stroke-linecap="round"'
 
 
 def stop_x(s):
@@ -51,51 +35,66 @@ def feet_y(x):
     return G - lift
 
 
-def _hill(cx, rx, ry, body, rim, eyes=True):
-    out = []
-    for x in range(int(cx - rx), int(cx + rx), 4):
-        t = 1 - ((x + 2 - cx) / rx) ** 2
-        if t <= 0:
-            continue
-        h = int(ry * math.sqrt(t) / 4) * 4
-        if h <= 0:
-            continue
-        out.append(f'<rect x="{x}" y="{G - h}" width="4" height="{h}" fill="{body}"/>'
-                   f'<rect x="{x}" y="{G - h}" width="4" height="4" fill="{rim}"/>')
+def _cloud(x, y, s):
+    return (f'<path transform="translate({x},{y}) scale({s})" {PEN} d="M0,14 a7,7 0 0 1 4,-12 a9,9 0 0 1 16,-3 '
+            f'a8,8 0 0 1 14,5 a6,6 0 0 1 2,10 Z"/>')
+
+
+def _hill(cx, rx, ry, eyes=True):
+    out = f'<path {PEN} d="M{cx - rx},{G} A{rx},{ry} 0 0 1 {cx + rx},{G}"/>'
     if eyes:
-        ey = G - ry * 0.62
-        out.append(f'<rect x="{cx - 10:.0f}" y="{ey:.0f}" width="4" height="10" fill="{rim}"/>'
-                   f'<rect x="{cx + 6:.0f}" y="{ey:.0f}" width="4" height="10" fill="{rim}"/>')
-    return "".join(out)
+        ey = G - ry * 0.55
+        out += f'<path {PEN} d="M{cx - 8},{ey:.0f} v8 M{cx + 6},{ey:.0f} v8"/>'
+    return out
 
 
 def _scene():
-    s = ['<rect width="960" height="176" fill="#ececec"/>']
-    for cx, cy, sc in [(96, 46, 4), (292, 58, 3), (560, 40, 4), (820, 56, 3)]:
-        s.append(_rects(CLOUD, {"X": "#fdfbf7"}, sc, cx, cy))
-    for cx, rx, ry in [(110, 70, 48), (420, 92, 60), (690, 62, 40)]:
-        s.append(_hill(cx, rx, ry, "#c4c4c4", "#8a8a8a"))
-    for cx, rx, ry in [(250, 30, 16), (560, 34, 18), (835, 28, 14)]:
-        s.append(_hill(cx, rx, ry, "#d6d6d6", "#a3a3a3", eyes=False))
-    # ground with pits
+    rng = random.Random(64)
+    s = []
+    for x, y, sc in [(62, 52, 1.2), (236, 48, 1.0), (380, 52, 1.0), (520, 44, 1.0), (655, 50, 1.0), (800, 50, 1.2)]:
+        s.append(_cloud(x, y, sc))
+    for cx, rx, ry in [(80, 52, 40), (262, 40, 30), (540, 36, 44), (680, 40, 34), (822, 34, 26)]:
+        s.append(_hill(cx, rx, ry, eyes=rx > 36))
+    # ground line with pits, hatched earth under it
     edges = [0] + [v for p in PITS for v in (p - 22, p + 22)] + [960]
     for a, b in zip(edges[::2], edges[1::2]):
-        s.append(f'<rect x="{a}" y="{G}" width="{b - a}" height="{H - G}" fill="url(#brick)"/>'
-                 f'<rect x="{a}" y="{G}" width="{b - a}" height="3" fill="#e2e2e2"/>')
+        s.append(f'<path {PEN} d="M{a},{G} L{b},{G}"/>')
+        for row, y in enumerate((G + 11, G + 24)):
+            x = a + 6 + row * 7
+            while x < b - 6:
+                s.append(f'<path d="M{x:.0f},{y + rng.uniform(-1, 1):.0f} l5,-6" {THIN} opacity=".65"/>')
+                x += rng.uniform(13, 18)
+    for p in PITS:
+        for sx in (p - 22, p + 22):
+            s.append(f'<path {PEN} d="M{sx},{G} L{sx},{H - 4}"/>')
     # pipes
     for xc, h in PIPES:
-        s.append(f'<rect x="{xc - 14}" y="{G - h}" width="28" height="{h}" fill="#8f8f8f" stroke="{INK}" stroke-width="1.6"/>'
-                 f'<rect x="{xc - 18}" y="{G - h}" width="36" height="12" fill="#a9a9a9" stroke="{INK}" stroke-width="1.6"/>'
-                 f'<rect x="{xc - 10}" y="{G - h + 14}" width="4" height="{h - 16}" fill="#d8d8d8"/>')
+        s.append(f'<path {PEN} d="M{xc - 14},{G} V{G - h + 12} M{xc + 14},{G} V{G - h + 12}"/>'
+                 f'<rect {PEN} x="{xc - 18}" y="{G - h}" width="36" height="12" rx="2"/>'
+                 f'<path d="M{xc - 8},{G - h + 18} v{h - 24}" {THIN} opacity=".6"/>')
     # flag pole and castle
     px = 898
-    s.append(f'<rect x="{px}" y="58" width="3" height="{G - 58}" fill="#6b6b6b"/><rect x="{px - 2}" y="54" width="7" height="7" fill="#f5f5f5" stroke="{INK}" stroke-width="1"/>'
-             f'<g class="flag"><path d="M{px},64 l-24,8 l24,8 Z" fill="#2b2b2b" stroke="{INK}" stroke-width="1.2"/></g>')
+    s.append(f'<path {PEN} d="M{px},{G} V58"/><circle {PEN} cx="{px}" cy="53" r="3.5"/>'
+             f'<g class="flag"><path {PEN} fill="{INK}" d="M{px},64 l-24,8 l24,8 Z"/></g>')
     cx = 926
-    s.append(f'<rect x="{cx}" y="{G - 34}" width="34" height="34" fill="#a0a0a0" stroke="{INK}" stroke-width="1.5"/>'
-             f'<path d="M{cx},{G - 34} v-6 h6 v6 h6 v-6 h6 v6 h6 v-6 h4 v6" fill="#a0a0a0" stroke="{INK}" stroke-width="1.5"/>'
-             f'<path d="M{cx + 12},{G} v-13 a5,5 0 0 1 10,0 v13 Z" fill="{INK}"/>')
+    s.append(f'<path {PEN} d="M{cx},{G} V{G - 34} h5 v-6 h5 v6 h4 v-6 h5 v6 h4 v-6 h5 v6 h6 V{G}"/>'
+             f'<path {PEN} d="M{cx + 12},{G} v-12 a5,5 0 0 1 10,0 v12"/>')
     return "".join(s)
+
+
+def _runner(frame):
+    """A stick figure, feet at (0, 0), facing right. a: stride, b: legs together (also the jump)."""
+    if frame == "a":
+        legs, arms = "M0,-14 L-6,-7 L-10,0 M0,-14 L7,-8 L4,0", "M1,-25 L-6,-19 L-9,-22 M1,-25 L8,-21 L12,-24"
+        hide = ""
+    else:
+        legs, arms = "M0,-14 L-2,-7 L-2,0 M0,-14 L3,-8 L2,0", "M1,-25 L-5,-27 L-8,-31 M1,-25 L7,-26 L10,-30"
+        hide = ' style="display:none"'
+    return (f'<g class="f{frame}"{hide}>'
+            f'<circle {PEN} cx="3" cy="-34" r="5.5"/>'
+            f'<path {PEN} d="M1,-28.5 L0,-14 {legs} {arms}"/>'
+            f'<path {PEN} stroke-width="1.6" d="M-3,-36 L-10,-35 M-3,-33.5 L-9,-31"/>'   # headband tails
+            f'<circle cx="5.2" cy="-35" r="1" fill="{INK}"/></g>')
 
 
 def render(read, root=""):
@@ -110,7 +109,7 @@ def render(read, root=""):
         x = stop_x(i)
         cy = max(40, feet_y(x) - 58)
         got = " got" if i <= n else ""
-        use = f'<use href="#coin" class="coin{got}" data-i="{i}" x="{x - 4.5:.1f}" y="{cy - 6:.1f}"/>'
+        use = f'<use href="#coin" class="coin{got}" data-i="{i}" x="{x - 3.5:.1f}" y="{cy - 5:.1f}"/>'
         if i <= len(read):
             tip = html.escape(f"{i}. {read[i - 1][0]}")
             out.append(f'<a href="{root}weeks/{read[i - 1][1]}.html"><title>{tip}</title>{use}</a>')
@@ -118,16 +117,16 @@ def render(read, root=""):
             out.append(use)
         if i % 10 == 0 and i < 100:
             used = " used" if i <= n else ""
-            out.append(f'<g class="block{used}" data-i="{i}"><rect x="{x - 10:.1f}" y="14" width="20" height="20" rx="2"/>'
+            out.append(f'<g class="block{used}" data-i="{i}"><rect x="{x - 11:.1f}" y="12" width="22" height="22" rx="2"/>'
+                       f'<path class="hatch" d="M{x - 8:.1f},31 l16,-16 M{x - 8:.1f},25 l10,-10 M{x - 2:.1f},31 l10,-10"/>'
                        f'<text x="{x:.1f}" y="28.5" text-anchor="middle">{i}</text></g>')
-    runner = (f'<g class="runner" aria-hidden="true"><ellipse cx="{6 * PX}" cy="{14 * PX}" rx="{5 * PX}" ry="{1.5 * PX}" fill="{INK}" opacity=".18"/>'
-              f'<g class="fa">{_rects(BODY + LEGS_A, PALETTE, PX)}</g><g class="fb" style="display:none">{_rects(BODY + LEGS_B, PALETTE, PX)}</g></g>')
+    runner = f'<g class="runner" aria-hidden="true">{_runner("a")}{_runner("b")}</g>'
     data = html.escape(json.dumps(pts, separators=(",", ":")))
-    defs = ('<defs><pattern id="brick" width="16" height="16" patternUnits="userSpaceOnUse">'
-            '<rect width="16" height="16" fill="#8c8c8c"/><path d="M0 8H16M0 0H16M8 0V8M0 8V16M16 8V16" stroke="#555" stroke-width="1.2" fill="none"/></pattern>'
-            f'<symbol id="coin" viewBox="0 0 9 12" width="9" height="12">{_rects(COIN, COIN_COLORS, 1.5)}</symbol>'
-            '<clipPath id="stage"><rect width="960" height="176" rx="8"/></clipPath></defs>')
+    defs = ('<defs><filter id="rough" x="-2%" y="-5%" width="104%" height="110%">'
+            '<feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="5" result="n"/>'
+            '<feDisplacementMap in="SourceGraphic" in2="n" scale="3"/></filter>'
+            f'<symbol id="coin" viewBox="0 0 7 10" width="7" height="10"><ellipse cx="3.5" cy="5" rx="2.7" ry="4.1" {PEN} stroke-width="1.2"/>'
+            f'<path d="M3.5,2.6 v4.8" fill="none" stroke="{INK}" stroke-width="1" stroke-linecap="round"/></symbol></defs>')
     return (f'<div class="world" data-n="{n}" data-res="{RES}" data-points="{data}" role="img" aria-label="{n} of 100 papers read">'
             f'<svg viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">{defs}'
-            f'<g clip-path="url(#stage)">{_scene()}{"".join(out)}{runner}</g>'
-            f'<rect width="960" height="176" rx="8" fill="none" stroke="{INK}" stroke-width="1.6"/></svg></div>')
+            f'<g filter="url(#rough)">{_scene()}{"".join(out)}{runner}</g></svg></div>')

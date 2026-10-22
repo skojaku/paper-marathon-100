@@ -5,7 +5,7 @@
   const runner = box.querySelector('.runner'), fa = runner.querySelector('.fa'), fb = runner.querySelector('.fb');
   const coins = [...box.querySelectorAll('.coin')], blocks = [...box.querySelectorAll('.block')];
   const flag = box.querySelector('.flag'), svg = box.querySelector('svg');
-  const SPRITE_W = 36, SPRITE_H = 42, GROUND = 140;
+  const GROUND = 140;
 
   // where the visitor last saw the runner: run from there to the current stop
   let from = n;
@@ -18,7 +18,7 @@
   function place(p) {
     const k = Math.min(p * res, pts.length - 1), i = Math.min(Math.floor(k), pts.length - 2), f = k - i;
     const x = pts[i][0] + f * (pts[i + 1][0] - pts[i][0]), y = pts[i][1] + f * (pts[i + 1][1] - pts[i][1]);
-    runner.setAttribute('transform', `translate(${(x - SPRITE_W / 2).toFixed(1)},${(y - SPRITE_H + 2).toFixed(1)})`);
+    runner.setAttribute('transform', `translate(${x.toFixed(1)},${y.toFixed(1)})`);
     coins.forEach((c) => c.classList.toggle('got', +c.dataset.i <= p + 0.001));
     blocks.forEach((b) => b.classList.toggle('used', +b.dataset.i <= p + 0.001));
     flag.classList.toggle('down', p >= 100);
