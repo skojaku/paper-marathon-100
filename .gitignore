@@ -1,0 +1,4 @@
+site/
+data/papers_raw.json
+__pycache__/
+.DS_Store
