@@ -19,8 +19,7 @@ OUT = ROOT / "site"
 SITE_TITLE = "Paper Marathon 100"
 TAGLINE = "Agentic AI reading group"
 
-NAV = [("index.html", "Search"), ("weeks.html", "Weeks"), ("papers.html", "Papers"),
-       ("about.html", "About"), ("method.html", "Method")]
+NAV = [("index.html", "Papers"), ("weeks.html", "Weeks"), ("about.html", "About"), ("method.html", "Method")]
 
 
 def md(text):
@@ -136,31 +135,20 @@ def main():
           "summary": w.get("summary", ""), "text": w["text"]} for w in weeks],
         ensure_ascii=False, separators=(",", ":")))
 
-    # ---- search / papers
-    n_ven = len({p["venue"] for p in papers})
-    search_scripts = ('<script src="https://cdnjs.cloudflare.com/ajax/libs/minisearch/7.1.0/umd/index.min.js"></script>'
-                      '<script src="{r}assets/app.js"></script>')
-    (OUT / "index.html").write_text(page("index.html", "Search", f"""
-<section class="hero">
-  <h1>Read a hundred papers, one week at a time.</h1>
-  <p class="lead">Search the papers we are reading and what we wrote about them.</p>
-  <input id="q" class="search" type="search" placeholder="Search papers, summaries, questions…" autofocus autocomplete="off">
-  <p class="muted stat">{len(papers):,} multi-agent LLM papers from {n_ven} venues, 2023–2026 · {len(weeks)} week{'s' if len(weeks) != 1 else ''} written up</p>
-</section>
-<div id="results" data-mode="all"></div>""", 0, count, search_scripts.format(r="")))
-
-    (OUT / "papers.html").write_text(page("papers.html", "Papers", f"""
+    # ---- landing page = the paper list (search covers weeks too)
+    scripts = ('<script src="https://cdnjs.cloudflare.com/ajax/libs/minisearch/7.1.0/umd/index.min.js"></script>'
+               '<script src="assets/app.js"></script>')
+    (OUT / "index.html").write_text(page("index.html", "Papers", """
 <h1>Papers</h1>
-<p class="lead">The candidate list for the first theme, multi-agent systems. {len(papers):,} papers; tags are LLM-generated.</p>
-<input id="q" class="search" type="search" placeholder="Filter by title, abstract or tag…" autocomplete="off">
+<p class="lead">Papers on multi-agent systems, with the weekly write-ups. Tags are LLM-generated.</p>
+<input id="q" class="search" type="search" placeholder="Search papers and weekly write-ups…" autofocus autocomplete="off">
 <div id="filters" class="filters"></div>
-<div id="results" data-mode="papers"></div>""", 0, count, search_scripts.format(r="")))
+<div id="results" data-mode="papers"></div>""", 0, count, scripts))
 
     # ---- static pages
     for path in sorted((ROOT / "pages").glob("*.md")):
         meta, body = front(path)
         title = meta.get("title", path.stem.title())
-        body = body.replace("{{N_PAPERS}}", f"{len(papers):,}").replace("{{N_VENUES}}", str(n_ven))
         (OUT / f"{path.stem}.html").write_text(
             page(f"{path.stem}.html", title, f'<article class="prose">{md(body)}</article>', 0, count))
 

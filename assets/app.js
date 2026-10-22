@@ -2,7 +2,6 @@
   const $ = (s) => document.querySelector(s);
   const q = $('#q'), out = $('#results');
   if (!q || !out) return;
-  const mode = out.dataset.mode; // "all" | "papers"
   const PAGE = 40;
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const nice = (s) => String(s).replace(/_/g, ' ');
@@ -17,7 +16,7 @@
     paperIdx.addAll(papers);
     weekIdx = new MiniSearch({ idField: 'slug', fields: ['title', 'summary', 'text'], searchOptions: { prefix: true, fuzzy: 0.15, boost: { title: 3 } } });
     weekIdx.addAll(weeks);
-    if (mode === 'papers') buildFilters();
+    buildFilters();
     const init = new URLSearchParams(location.search).get('q');
     if (init) q.value = init;
     render();
@@ -48,7 +47,7 @@
     const link = p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener">${hl(p.title, terms)}</a>` : hl(p.title, terms);
     const chips = p.tags.slice(0, 8).map((t) => `<button class="chip" data-tag="${esc(t)}">${esc(nice(t))}</button>`).join('');
     const abs = p.abstract ? `<p class="abstract clamp">${hl(p.abstract, terms)}</p><button class="more-btn">Show more</button>` : '<p class="abstract muted">No abstract available.</p>';
-    return `<div class="result">${mode === 'all' ? '<span class="kind paper">Paper</span>' : ''}<h3 style="display:inline">${link}</h3>
+    return `<div class="result"><h3 style="display:inline">${link}</h3>
       <div class="meta">${esc(p.venue)} ${p.year} · ${esc(nice(p.purpose))} · ${esc(p.relation === 'na' ? '' : nice(p.relation))}</div>${abs}<div class="chips">${chips}</div></div>`;
   }
   function weekHtml(w, terms) {
@@ -63,10 +62,9 @@
     if (text) {
       ps = paperIdx.search(text, { combineWith: 'AND' }).map((r) => papers[r.id]);
       if (!ps.length) ps = paperIdx.search(text).map((r) => papers[r.id]);
-      if (mode === 'all') ws = weekIdx.search(text).map((r) => weeks.find((w) => w.slug === r.id));
+      ws = weekIdx.search(text).map((r) => weeks.find((w) => w.slug === r.id));
     } else {
       ps = papers;
-      if (mode === 'all') { out.innerHTML = weeks.length ? '<p class="count">Latest weeks</p>' + weeks.slice(-3).reverse().map((w) => weekHtml(w, [])).join('') + '<p><a href="weeks.html">All weeks →</a> · <a href="papers.html">Browse the paper list →</a></p>' : '<p class="empty">Nothing written up yet. The first session is on 2026-11-05. Meanwhile, <a href="papers.html">browse the paper list</a> or search above.</p>'; return; }
     }
     ps = ps.filter(passes);
     const items = ws.map((w) => weekHtml(w, terms)).concat(ps.slice(0, state.shown).map((p) => paperHtml(p, terms)));
