@@ -3,16 +3,16 @@ title: About
 ---
 # About Paper Marathon 100
 
-Paper Marathon 100 is a reading group on agentic AI. The goal is to read a hundred papers together. The badge in the top-left corner counts the papers read so far (0/100, 1/100, …) and turns from dark red toward crimson as the count grows.
+Paper Marathon 100 is a reading group on agentic AI. The goal is to collaboratively read through 100 research papers. A character is added to the row at the top of each page every time we finish reading a paper.
 
 ## Why
 
-Agentic AI moves faster than any one person can read. Reading together on a regular basis gives each of us papers we would otherwise skip, and the written record of summaries and open questions lets anyone find what a paper claims and what we doubted about it.
+Research on agentic AI has been published at a pace that exceeds what a single person can read. By reading together on a regular basis, each of us ends up reading papers we wouldn’t have chosen on our own. Through written summaries and questions, anyone can understand the paper’s arguments and what we were unsure about.
 
 ## First theme: multi-agent systems
 
-We start with systems built from several large language model agents that talk, debate, divide work or play against each other. The paper list on the front page is the starting pool; anyone may also bring a paper from outside it.
+We will begin with multi-agent systems. These are systems in which multiple large language model agents interact, debate, share work, or compete with one another. We will choose papers from the list of papers on the front page. Anyone is welcome to bring papers not included on the list.
 
 ## Weekly write-ups
 
-Each week gets one page: the papers read, a short summary of each, what we learned, and the questions left open ([Weeks](weeks.html)).
+We will set aside one page each week. On that page, we will list the papers we have read, a brief summary of each paper, what we have learned, and the questions we still have.

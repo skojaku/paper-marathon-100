@@ -14,10 +14,14 @@ from pathlib import Path
 import markdown
 import yaml
 
+from mascot import crowd
+
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "site"
 SITE_TITLE = "Paper Marathon 100"
 TAGLINE = "Agentic AI reading group"
+
+READ = []  # (paper title, week slug) in reading order; one character each
 
 NAV = [("index.html", "Papers"), ("weeks.html", "Weeks"), ("about.html", "About"), ("method.html", "Method")]
 
@@ -38,14 +42,8 @@ def plain(text):
     return " ".join(text.split())
 
 
-def badge(count):
-    count = max(0, min(count, 100))
-    return f"{count}/100", f"#A100{count:02X}"
-
-
-def page(name, title, body, depth, count, scripts=""):
+def page(name, title, body, depth, scripts=""):
     root = "../" * depth
-    label, color = badge(count)
     nav = "".join(
         f'<a href="{root}{href}"{" aria-current=page" if href == name else ""}>{text}</a>'
         for href, text in NAV)
@@ -56,14 +54,14 @@ def page(name, title, body, depth, count, scripts=""):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{html.escape(title)} · {SITE_TITLE}</title>
 <link rel="stylesheet" href="{root}assets/style.css">
-<style>:root{{--progress:{color}}}</style>
 </head>
 <body>
 <header class="top">
-  <a class="brand" href="{root}index.html"><span class="badge" title="{count} of 100 papers read">{label}</span>
+  <a class="brand" href="{root}index.html">
     <span class="brand-text"><strong>{SITE_TITLE}</strong><small>{TAGLINE}</small></span></a>
   <nav>{nav}</nav>
 </header>
+{crowd(READ, root)}
 <main>
 {body}
 </main>
@@ -95,7 +93,8 @@ def main():
         meta["body_md"] = body
         weeks.append(meta)
     weeks.sort(key=lambda w: str(w["date"]))
-    count = sum(len(w.get("papers") or []) for w in weeks)
+    READ[:] = [(p["title"], w["slug"]) for w in weeks for p in (w.get("papers") or [])]
+    count = len(READ)
 
     for w in weeks:
         rows = ""
@@ -112,7 +111,7 @@ def main():
 {md(w['body_md'])}
 </article>"""
         (OUT / "weeks" / f"{w['slug']}.html").write_text(
-            page("weeks.html", w["title"], body, 1, count))
+            page("weeks.html", w["title"], body, 1))
         w["text"] = plain(w["body_md"])
 
     cards = ""
@@ -128,7 +127,7 @@ def main():
     (OUT / "weeks.html").write_text(page("weeks.html", "Weeks", f"""
 <h1>Weeks</h1>
 <p class="lead">One page per meeting: what was read, what we learned, and the questions left open.</p>
-<div class="cards">{cards}</div>""", 0, count))
+<div class="cards">{cards}</div>""", 0))
 
     (OUT / "data/weeks.json").write_text(json.dumps(
         [{"slug": w["slug"], "week": w["week"], "date": str(w["date"]), "title": w["title"],
@@ -143,16 +142,16 @@ def main():
 <p class="lead">Papers on multi-agent systems, with the weekly write-ups. Tags are LLM-generated.</p>
 <input id="q" class="search" type="search" placeholder="Search papers and weekly write-ups…" autofocus autocomplete="off">
 <div id="filters" class="filters"></div>
-<div id="results" data-mode="papers"></div>""", 0, count, scripts))
+<div id="results" data-mode="papers"></div>""", 0, scripts))
 
     # ---- static pages
     for path in sorted((ROOT / "pages").glob("*.md")):
         meta, body = front(path)
         title = meta.get("title", path.stem.title())
         (OUT / f"{path.stem}.html").write_text(
-            page(f"{path.stem}.html", title, f'<article class="prose">{md(body)}</article>', 0, count))
+            page(f"{path.stem}.html", title, f'<article class="prose">{md(body)}</article>', 0))
 
-    print(f"built {len(papers)} papers, {len(weeks)} weeks, badge {badge(count)[0]} -> {OUT}")
+    print(f"built {len(papers)} papers, {len(weeks)} weeks, {count} read -> {OUT}")
 
 
 if __name__ == "__main__":
