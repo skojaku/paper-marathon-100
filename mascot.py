@@ -63,7 +63,7 @@ def crowd(read, root=""):
         return (f'<div class="crowd waiting" role="img" aria-label="No papers read yet">'
                 f'<span class="ghost">{character(0, sleeping=True)}</span>'
                 f'<span class="crowd-note">Waiting for the first paper…</span></div>')
-    size = 44 if n <= 24 else 36 if n <= 50 else 30
+    size = 30 if n <= 24 else 24 if n <= 50 else 20
     out = []
     for i, (title, slug) in enumerate(read[:100]):
         cls = ' class="new"' if i == min(n, 100) - 1 else ""

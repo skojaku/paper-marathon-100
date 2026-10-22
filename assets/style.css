@@ -80,13 +80,13 @@ nav a{border-radius:2px}
 mark{background:rgba(156,26,34,.16)}
 
 /* one character per paper read */
-.crowd{max-width:960px;margin:0 auto;padding:10px 16px 6px;display:flex;flex-wrap:wrap;gap:2px 4px;align-items:flex-end}
+.crowd{max-width:960px;margin:0 auto;padding:8px 16px 2px;display:flex;flex-wrap:wrap;gap:2px 3px;align-items:flex-end}
 .crowd a{display:block;line-height:0;transform-origin:50% 100%}
 .crowd svg{width:var(--s,40px);height:var(--s,40px);display:block;animation:bob 3.2s ease-in-out infinite;animation-delay:calc(var(--i) * -.41s);transform-origin:50% 100%}
 .crowd a:hover svg{animation:hop .5s ease-out}
 .crowd a.new svg{animation:pop .8s cubic-bezier(.3,1.7,.5,1) both,bob 3.2s ease-in-out .8s infinite}
 .crowd.waiting{align-items:center;gap:12px}
-.crowd .ghost svg{width:40px;height:40px;opacity:.5;animation:none}
+.crowd .ghost svg{width:30px;height:30px;opacity:.5;animation:none}
 .crowd-note{color:var(--muted);font-size:15px}
 @keyframes bob{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-2px) rotate(1.5deg)}}
 @keyframes hop{0%{transform:translateY(0)}40%{transform:translateY(-9px) scale(1.08)}100%{transform:translateY(0)}}
