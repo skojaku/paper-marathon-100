@@ -1,9 +1,9 @@
 ---
 title: About
 ---
-# About P64
+# About Paper Marathon 100
 
-P64 is a weekly reading group on agentic AI. The name is **P** for papers plus **0x64**, which is 100 in hexadecimal. The group's goal is to read a hundred papers together, and the badge in the top-left corner counts the papers read so far in hex (P00, P01, … P64) and turns from dark red toward crimson as the count grows.
+Paper Marathon 100 is a weekly reading group on agentic AI. The goal is to read a hundred papers together. The badge in the top-left corner counts the papers read so far (0/100, 1/100, …) and turns from dark red toward crimson as the count grows.
 
 ## Why
 

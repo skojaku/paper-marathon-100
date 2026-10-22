@@ -1,4 +1,4 @@
-"""Build the P64 static site into ./site.
+"""Build the Paper Marathon 100 static site into ./site.
 
     uv run --with markdown --with pyyaml build.py
 
@@ -16,7 +16,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "site"
-SITE_TITLE = "P64"
+SITE_TITLE = "Paper Marathon 100"
 TAGLINE = "Agentic AI reading group"
 
 NAV = [("index.html", "Search"), ("weeks.html", "Weeks"), ("papers.html", "Papers"),
@@ -41,7 +41,7 @@ def plain(text):
 
 def badge(count):
     count = max(0, min(count, 100))
-    return f"P{count:02X}", f"#A100{count:02X}"
+    return f"{count}/100", f"#A100{count:02X}"
 
 
 def page(name, title, body, depth, count, scripts=""):
@@ -68,7 +68,7 @@ def page(name, title, body, depth, count, scripts=""):
 <main>
 {body}
 </main>
-<footer>P = papers, 0x64 = 100. Summaries and questions are written by the participants each week; tags on the paper list are LLM-generated (see <a href="{root}method.html">Method</a>).</footer>
+<footer>Summaries and questions are written by the participants each week; tags on the paper list are LLM-generated (see <a href="{root}method.html">Method</a>).</footer>
 {scripts}
 </body>
 </html>
