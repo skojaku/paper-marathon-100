@@ -1,16 +1,13 @@
+@import url("https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&display=swap");
 :root{
-  --bg:#fbfaf9; --fg:#1c1b1a; --muted:#6b6661; --line:#e4e0dc; --card:#ffffff;
-  --accent:#a10010; --accent-fg:#fff; --chip:#f1ece8;
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#141211; --fg:#ece8e4; --muted:#a39d97; --line:#2e2a27; --card:#1c1917;
-    --accent:#e0475b; --accent-fg:#fff; --chip:#27221f;
-  }
+  --bg:#f8f5ee; --fg:#26231f; --muted:#7a746b; --line:#ded8cc; --card:rgba(255,255,255,.55);
+  --accent:#9c1a22; --accent-fg:#fff; --chip:rgba(120,105,80,.09);
+  --serif:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",Georgia,serif;
+  --fibers:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600'><filter id='a'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' seed='4'/><feColorMatrix values='0 0 0 0 .45  0 0 0 0 .38  0 0 0 0 .28  0 0 0 .55 -.18'/></filter><filter id='b'><feTurbulence type='fractalNoise' baseFrequency='0.012 0.55' numOctaves='2' seed='9'/><feColorMatrix values='0 0 0 0 .5  0 0 0 0 .42  0 0 0 0 .3  0 0 0 .9 -.5'/></filter><rect width='600' height='600' filter='url(%23a)' opacity='.35'/><rect width='600' height='600' filter='url(%23b)' opacity='.28'/></svg>");
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+body{margin:0;background:var(--bg) var(--fibers);color:var(--fg);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
 a{color:var(--accent)}
 header.top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;
   padding:14px 16px;max-width:960px;margin:0 auto}
@@ -68,3 +65,20 @@ article h2{border-top:1px solid var(--line);padding-top:.8em}
 article table{border-collapse:collapse;font-size:14px;width:100%;display:block;overflow-x:auto}
 article th,article td{border:1px solid var(--line);padding:6px 10px;text-align:left}
 code{background:var(--chip);padding:1px 5px;border-radius:4px;font-size:.9em}
+
+/* washi: paper grain background, serif headings, hairlines instead of boxes */
+h1,h2,h3,.brand-text strong,.kicker{font-family:var(--serif)}
+h1{font-weight:700;letter-spacing:.01em}
+.badge{border-radius:3px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+.search{border:0;border-bottom:1.5px solid var(--fg);border-radius:0;background:transparent;padding:14px 2px}
+.search:focus{border-bottom-color:var(--accent)}
+.card{border-radius:2px;border-color:var(--line);backdrop-filter:blur(1px)}
+.card:hover{transform:none;border-color:var(--accent);background:rgba(255,255,255,.8)}
+.kind{border-radius:2px}
+.chip{border-radius:2px}
+.filters select,.load{border-radius:2px;background:rgba(255,255,255,.6)}
+.empty{border-radius:2px}
+header.top{border-bottom:1px solid var(--line);max-width:none;padding:14px max(16px,calc((100% - 928px)/2))}
+footer{border-top:1px solid var(--line)}
+nav a{border-radius:2px}
+mark{background:rgba(156,26,34,.16)}
