@@ -53,7 +53,7 @@ def character(i, sleeping=False):
         parts.append(f'<path d="M20 33 Q22 36 24 33 Q26 36 28 33" fill="none" stroke="{INK}" stroke-width="1.8" stroke-linecap="round"/>')
     if cheeks:
         parts.append('<circle cx="12.6" cy="33" r="2.4" fill="#e58a8a" opacity=".5"/><circle cx="35.4" cy="33" r="2.4" fill="#e58a8a" opacity=".5"/>')
-    return f'<svg viewBox="0 0 48 48" aria-hidden="true">{"".join(parts)}</svg>'
+    return f'<svg width="30" height="30" viewBox="0 0 48 48" aria-hidden="true">{"".join(parts)}</svg>'
 
 
 def crowd(read, root=""):

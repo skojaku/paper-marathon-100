@@ -5,6 +5,7 @@
 Inputs:  data/papers.json, weeks/*.md, pages/*.md, assets/
 Output:  site/ (what GitHub Pages serves)
 """
+import hashlib
 import html
 import json
 import re
@@ -17,6 +18,12 @@ import yaml
 from mascot import crowd
 
 ROOT = Path(__file__).resolve().parent
+
+
+def ver(name):
+    """Short content hash for ?v= so a browser never mixes new HTML with an old cached asset."""
+    return hashlib.md5((ROOT / "assets" / name).read_bytes()).hexdigest()[:8]
+
 OUT = ROOT / "site"
 SITE_TITLE = "Paper Marathon 100"
 TAGLINE = "Agentic AI reading group"
@@ -53,7 +60,7 @@ def page(name, title, body, depth, scripts=""):
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{html.escape(title)} · {SITE_TITLE}</title>
-<link rel="stylesheet" href="{root}assets/style.css">
+<link rel="stylesheet" href="{root}assets/style.css?v={ver('style.css')}">
 </head>
 <body>
 <header class="top">
@@ -136,7 +143,7 @@ def main():
 
     # ---- landing page = the paper list (search covers weeks too)
     scripts = ('<script src="https://cdnjs.cloudflare.com/ajax/libs/minisearch/7.1.0/umd/index.min.js"></script>'
-               '<script src="assets/app.js"></script>')
+               '<script src="assets/app.js?v=' + ver('app.js') + '"></script>')
     (OUT / "index.html").write_text(page("index.html", "Papers", """
 <h1>Papers</h1>
 <p class="lead">Papers on multi-agent systems, with the weekly write-ups. Tags are LLM-generated.</p>
