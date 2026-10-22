@@ -15,7 +15,7 @@ from pathlib import Path
 import markdown
 import yaml
 
-from mascot import crowd
+import worldmap
 
 ROOT = Path(__file__).resolve().parent
 
@@ -68,11 +68,12 @@ def page(name, title, body, depth, scripts=""):
     <span class="brand-text"><strong>{SITE_TITLE}</strong><small>{TAGLINE}</small></span></a>
   <nav>{nav}</nav>
 </header>
-{crowd(READ, root)}
+{worldmap.render(READ, root)}
 <main>
 {body}
 </main>
 <footer>Summaries and questions are written by the participants each week; tags on the paper list are LLM-generated (see <a href="{root}method.html">Method</a>).</footer>
+<script src="{root}assets/map.js?v={ver('map.js')}"></script>
 {scripts}
 </body>
 </html>

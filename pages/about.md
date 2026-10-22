@@ -3,7 +3,7 @@ title: About
 ---
 # About Paper Marathon 100
 
-Paper Marathon 100 is a reading group on agentic AI. The goal is to collaboratively read through 100 research papers. A character is added to the row at the top of each page every time we finish reading a paper.
+Paper Marathon 100 is a reading group on agentic AI. The goal is to collaboratively read through 100 research papers. A runner on the map at the top of each page moves one step forward every time we finish reading a paper.
 
 ## Why
 
